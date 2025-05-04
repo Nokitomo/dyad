@@ -996,12 +996,15 @@ export function registerAppHandlers() {
           errors.push(`Failed to add app '${appPath}': ${error.message}`);
         }
       }
+      // Return the result object even if there were errors during processing individual apps
+      return { addedApps, errors };
     } catch (error: any) {
+      // Catch errors during the initial directory scan (e.g., permission issues)
       logger.error("Error scanning dyad-apps directory:", error);
       errors.push(`Failed to scan directory: ${error.message}`);
+      // Return the result object with any apps added before the error and the error itself
+      return { addedApps, errors };
     }
-
-    return { addedApps, errors };
   });
 
   // New handler to import a project from a user-selected directory
