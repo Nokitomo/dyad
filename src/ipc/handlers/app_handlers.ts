@@ -996,14 +996,17 @@ export function registerAppHandlers() {
           errors.push(`Failed to add app '${appPath}': ${error.message}`);
         }
       }
-      // Return the result object even if there were errors during processing individual apps
-      return { addedApps, errors };
+      // If there were errors during processing, throw an error containing all messages
+      if (errors.length > 0) {
+        throw new Error(`Scan completed with errors:\n${errors.join("\n")}`);
+      }
+      // Return the result object if no errors occurred
+      return { addedApps, errors: [] };
     } catch (error: any) {
-      // Catch errors during the initial directory scan (e.g., permission issues)
+      // Catch errors during the initial directory scan or the consolidated error throw
       logger.error("Error scanning dyad-apps directory:", error);
-      errors.push(`Failed to scan directory: ${error.message}`);
-      // Return the result object with any apps added before the error and the error itself
-      return { addedApps, errors };
+      // Throw the error so showLoading can handle it
+      throw error;
     }
   });
 
@@ -1106,7 +1109,8 @@ export function registerAppHandlers() {
         return { success: true, appId: newApp.id, appName: newApp.name };
       } catch (error: any) {
         logger.error(`Error importing project from ${sourcePath}:`, error);
-        return { success: false, error: error.message };
+        // Throw the error so showLoading can handle it
+        throw error;
       }
     }
   );
