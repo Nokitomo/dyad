@@ -45,59 +45,47 @@ export function AppList({ show }: { show?: boolean }) {
 
   const handleScanForApps = async () => {
     setIsScanning(true);
-    try {
-      const result = await showLoading(
-        "Scanning for apps...",
-        IpcClient.getInstance().scanForApps()
+    const result = await showLoading(
+      "Scanning for apps...",
+      IpcClient.getInstance().scanForApps()
+    );
+    if (result.addedApps.length > 0) {
+      showSuccess(
+        `Found and added ${result.addedApps.length} app(s).`
       );
-      if (result.addedApps.length > 0) {
-        showSuccess(
-          `Found and added ${result.addedApps.length} app(s).`
-        );
-        refreshApps(); // Refresh the list after adding
-      } else if (result.errors.length > 0) {
-         showError(`Finished scan with errors: ${result.errors.join(', ')}`);
-      }
-      else {
-        showSuccess("No new apps found.");
-      }
-    } catch (error) {
-      // Use a more robust way to get the error message
-      showError(`Failed to scan for apps: ${(error as any).toString()}`);
-    } finally {
-      setIsScanning(false);
+      refreshApps(); // Refresh the list after adding
+    } else if (result.errors.length > 0) {
+       showError(`Finished scan with errors: ${result.errors.join(', ')}`);
     }
+    else {
+      showSuccess("No new apps found.");
+    }
+    setIsScanning(false);
   };
 
   const handleImportProject = async () => {
     setIsImporting(true);
-    try {
-      const selectedPath = await IpcClient.getInstance().openDirectoryDialog();
-      if (selectedPath) {
-        const result = await showLoading(
-          `Importing project from ${selectedPath}...`,
-          IpcClient.getInstance().importProject(selectedPath)
-        );
-        if (result.success) {
-          showSuccess(`Successfully imported app "${result.appName}".`);
-          refreshApps(); // Refresh the list after importing
-          // Optionally navigate to the new app's details page or chat
-          if (result.appId) {
-             navigate({ to: "/", search: { appId: result.appId } });
-          }
-        } else {
-          // Use a more robust way to get the error message
-          showError(`Failed to import project: ${result.error || (result as any).toString()}`);
+    const selectedPath = await IpcClient.getInstance().openDirectoryDialog();
+    if (selectedPath) {
+      const result = await showLoading(
+        `Importing project from ${selectedPath}...`,
+        IpcClient.getInstance().importProject(selectedPath)
+      );
+      if (result.success) {
+        showSuccess(`Successfully imported app "${result.appName}".`);
+        refreshApps(); // Refresh the list after importing
+        // Optionally navigate to the new app's details page or chat
+        if (result.appId) {
+           navigate({ to: "/", search: { appId: result.appId } });
         }
       } else {
-        // User canceled the dialog, no error needed
+        // The showLoading toast will display the error message from result.error
+        // or a default message if result.error is undefined.
       }
-    } catch (error) {
-      // Use a more robust way to get the error message
-      showError(`Failed to import project: ${(error as any).toString()}`);
-    } finally {
-      setIsImporting(false);
+    } else {
+      // User canceled the dialog, no error needed
     }
+    setIsImporting(false);
   };
 
 
