@@ -45,47 +45,61 @@ export function AppList({ show }: { show?: boolean }) {
 
   const handleScanForApps = async () => {
     setIsScanning(true);
-    const result = await showLoading(
-      "Scanning for apps...",
-      IpcClient.getInstance().scanForApps()
-    );
-    if (result.addedApps.length > 0) {
-      showSuccess(
-        `Found and added ${result.addedApps.length} app(s).`
+    try {
+      const result = await showLoading(
+        "Scanning for apps...",
+        IpcClient.getInstance().scanForApps()
       );
-      refreshApps(); // Refresh the list after adding
-    } else if (result.errors.length > 0) {
-       showError(`Finished scan with errors: ${result.errors.join(', ')}`);
+      if (result.addedApps.length > 0) {
+        showSuccess(
+          `Found and added ${result.addedApps.length} app(s).`
+        );
+        refreshApps(); // Refresh the list after adding
+      } else if (result.errors.length > 0) {
+         showError(`Finished scan with errors: ${result.errors.join(', ')}`);
+      }
+      else {
+        showSuccess("No new apps found.");
+      }
+    } catch (error) {
+      // The showLoading toast already handles the error display,
+      // but we catch it here to ensure the finally block runs.
+      console.error("Error during scanForApps:", error);
+    } finally {
+      setIsScanning(false); // Ensure state is reset
     }
-    else {
-      showSuccess("No new apps found.");
-    }
-    setIsScanning(false);
   };
 
   const handleImportProject = async () => {
     setIsImporting(true);
     const selectedPath = await IpcClient.getInstance().openDirectoryDialog();
     if (selectedPath) {
-      const result = await showLoading(
-        `Importing project from ${selectedPath}...`,
-        IpcClient.getInstance().importProject(selectedPath)
-      );
-      if (result.success) {
-        showSuccess(`Successfully imported app "${result.appName}".`);
-        refreshApps(); // Refresh the list after importing
-        // Optionally navigate to the new app's details page or chat
-        if (result.appId) {
-           navigate({ to: "/", search: { appId: result.appId } });
+      try {
+        const result = await showLoading(
+          `Importing project from ${selectedPath}...`,
+          IpcClient.getInstance().importProject(selectedPath)
+        );
+        if (result.success) {
+          showSuccess(`Successfully imported app "${result.appName}".`);
+          refreshApps(); // Refresh the list after importing
+          // Optionally navigate to the new app's details page or chat
+          if (result.appId) {
+             navigate({ to: "/", search: { appId: result.appId } });
+          }
+        } else {
+          // The showLoading toast already handles the error display.
         }
-      } else {
-        // The showLoading toast will display the error message from result.error
-        // or a default message if result.error is undefined.
+      } catch (error) {
+        // The showLoading toast already handles the error display,
+        // but we catch it here to ensure the finally block runs.
+        console.error("Error during importProject:", error);
+      } finally {
+        setIsImporting(false); // Ensure state is reset
       }
     } else {
       // User canceled the dialog, no error needed
+      setIsImporting(false); // Also reset state if dialog is cancelled
     }
-    setIsImporting(false);
   };
 
 
