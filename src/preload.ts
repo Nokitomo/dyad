@@ -57,6 +57,10 @@ const validInvokeChannels = [
   "window:get-platform",
   "upload-to-signed-url",
   "delete-chat",
+  // New channels
+  "app:scan-for-apps",
+  "app:import-project",
+  "dialog:open-directory",
 ] as const;
 
 // Add valid receive channels

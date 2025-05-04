@@ -893,4 +893,54 @@ export class IpcClient {
   }
 
   // --- End window control methods ---
+
+  // --- New App Management Methods ---
+  public async scanForApps(): Promise<{
+    addedApps: { name: string; path: string }[];
+    errors: string[];
+  }> {
+    try {
+      const result = await this.ipcRenderer.invoke("app:scan-for-apps");
+      return result as {
+        addedApps: { name: string; path: string }[];
+        errors: string[];
+      };
+    } catch (error) {
+      showError(error);
+      throw error;
+    }
+  }
+
+  public async importProject(sourcePath: string): Promise<{
+    success: boolean;
+    appId?: number;
+    error?: string;
+    appName?: string;
+  }> {
+    try {
+      const result = await this.ipcRenderer.invoke("app:import-project", {
+        sourcePath,
+      });
+      return result as {
+        success: boolean;
+        appId?: number;
+        error?: string;
+        appName?: string;
+      };
+    } catch (error) {
+      showError(error);
+      throw error;
+    }
+  }
+
+  public async openDirectoryDialog(): Promise<string | null> {
+    try {
+      const result = await this.ipcRenderer.invoke("dialog:open-directory");
+      return result as string | null;
+    } catch (error) {
+      showError(error);
+      throw error;
+    }
+  }
+  // --- End New App Management Methods ---
 }

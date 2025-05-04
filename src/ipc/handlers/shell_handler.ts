@@ -1,4 +1,4 @@
-import { ipcMain, shell } from "electron";
+import { ipcMain, shell, dialog } from "electron";
 import log from "electron-log";
 
 const logger = log.scope("shell_handlers");
@@ -40,6 +40,19 @@ export function registerShellHandlers() {
     } catch (error) {
       logger.error(`Failed to show item in folder ${fullPath}:`, error);
       return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // New handler to open a directory selection dialog
+  ipcMain.handle("dialog:open-directory", async (_event) => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ["openDirectory"],
+    });
+
+    if (canceled) {
+      return null; // User canceled the dialog
+    } else {
+      return filePaths[0]; // Return the selected directory path
     }
   });
 }
