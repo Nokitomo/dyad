@@ -62,7 +62,8 @@ export function AppList({ show }: { show?: boolean }) {
         showSuccess("No new apps found.");
       }
     } catch (error) {
-      showError(`Failed to scan for apps: ${(error as Error).message}`);
+      // Use a more robust way to get the error message
+      showError(`Failed to scan for apps: ${(error as any).toString()}`);
     } finally {
       setIsScanning(false);
     }
@@ -85,13 +86,15 @@ export function AppList({ show }: { show?: boolean }) {
              navigate({ to: "/", search: { appId: result.appId } });
           }
         } else {
-          showError(`Failed to import project: ${result.error}`);
+          // Use a more robust way to get the error message
+          showError(`Failed to import project: ${result.error || (result as any).toString()}`);
         }
       } else {
         // User canceled the dialog, no error needed
       }
     } catch (error) {
-      showError(`Failed to import project: ${(error as Error).message}`);
+      // Use a more robust way to get the error message
+      showError(`Failed to import project: ${(error as any).toString()}`);
     } finally {
       setIsImporting(false);
     }
