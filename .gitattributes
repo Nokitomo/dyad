@@ -4,3 +4,30 @@
 # Make everything in the e2e-tests/snapshots directory use LF line endings.
 # Otherwise we'll get diffs in the snapshots when running on Windows.
 e2e-tests/snapshots/** text eol=lf
+
+# Explicitly declare text files you want to always normalize and convert to LF
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.less text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout.
+*.bat text eol=crlf
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
