@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `vercel_inspector_url` text;

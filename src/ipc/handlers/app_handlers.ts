@@ -58,6 +58,7 @@ async function copyDir(
     },
   });
 }
+import { getVercelProjectName } from "./vercel_handlers"; // Import Vercel helper
 
 const logger = log.scope("app_handlers");
 const handle = createLoggedHandler(logger);
@@ -350,15 +351,25 @@ export function registerAppHandlers() {
     }
 
     let supabaseProjectName: string | null = null;
+    let vercelProjectName: string | null = null;
     const settings = readSettings();
+
     if (app.supabaseProjectId && settings.supabase?.accessToken?.value) {
       supabaseProjectName = await getSupabaseProjectName(app.supabaseProjectId);
+    }
+    if (app.vercelProjectId && settings.vercel?.accessToken?.value) {
+      vercelProjectName = await getVercelProjectName(app.vercelProjectId);
     }
 
     return {
       ...app,
       files,
       supabaseProjectName,
+      vercelProjectName,
+      vercelDeploymentId: app.vercelDeploymentId,
+      vercelDeploymentUrl: app.vercelDeploymentUrl,
+      vercelInspectorUrl: app.vercelInspectorUrl,
+      vercelDeploymentTimestamp: app.vercelDeploymentTimestamp,
     };
   });
 
@@ -929,4 +940,36 @@ export function registerAppHandlers() {
       }
     });
   });
+
+  // Handler for setting Vercel project ID for an app
+  handle(
+    "app:set-vercel-project",
+    async (
+      _,
+      { appId, vercelProjectId }: { appId: number; vercelProjectId: string },
+    ) => {
+      await db.update(apps).set({ vercelProjectId }).where(eq(apps.id, appId));
+      logger.info(
+        `Associated app ${appId} with Vercel project ${vercelProjectId}`,
+      );
+    },
+  );
+
+  // Handler for unsetting Vercel project ID for an app
+  handle(
+    "app:unset-vercel-project",
+    async (_, { appId }: { appId: number }) => {
+      await db
+        .update(apps)
+        .set({
+          vercelProjectId: null,
+          vercelDeploymentId: null,
+          vercelDeploymentUrl: null,
+          vercelInspectorUrl: null,
+          vercelDeploymentTimestamp: null,
+        })
+        .where(eq(apps.id, appId));
+      logger.info(`Removed Vercel project association for app ${appId}`);
+    },
+  );
 }

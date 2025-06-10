@@ -9,11 +9,9 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: true, // Correct way to enable sourcemaps
     rollupOptions: {
-      external: ["better-sqlite3"],
-      output: {
-        sourcemap: true,
-      },
+      external: ["better-sqlite3"], // Keep better-sqlite3 external
     },
   },
   plugins: [

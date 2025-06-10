@@ -32,6 +32,9 @@ import type {
   RenameBranchParams,
   UserBudgetInfo,
   CopyAppParams,
+  VercelProject,
+  VercelDeployParams,
+  VercelDeploymentResult, // Added
 } from "./ipc_types";
 import type { ProposalResult } from "@/lib/schemas";
 import { showError } from "@/lib/toast";
@@ -592,17 +595,12 @@ export class IpcClient {
   public async getProposal(chatId: number): Promise<ProposalResult | null> {
     try {
       const data = await this.ipcRenderer.invoke("get-proposal", { chatId });
-      // Assuming the main process returns data matching the ProposalResult interface
-      // Add a type check/guard if necessary for robustness
       return data as ProposalResult | null;
     } catch (error) {
       showError(error);
       throw error;
     }
   }
-
-  // Example methods for listening to events (if needed)
-  // public on(channel: string, func: (...args: any[]) => void): void {
 
   // --- Proposal Management ---
   public async approveProposal({
@@ -664,6 +662,38 @@ export class IpcClient {
   }
 
   // --- End Supabase Management ---
+
+  // --- Vercel Management ---
+  public async listVercelProjects(): Promise<VercelProject[]> {
+    return this.ipcRenderer.invoke("vercel:list-projects");
+  }
+
+  public async createVercelProject(
+    projectName: string,
+  ): Promise<VercelProject> {
+    return this.ipcRenderer.invoke("vercel:create-project", { projectName });
+  }
+
+  public async deployVercelProject(
+    params: VercelDeployParams,
+  ): Promise<VercelDeploymentResult> {
+    return this.ipcRenderer.invoke("vercel:deploy-project", params);
+  }
+
+  public async setVercelAppProject(
+    appId: number,
+    vercelProjectId: string,
+  ): Promise<void> {
+    await this.ipcRenderer.invoke("app:set-vercel-project", {
+      appId,
+      vercelProjectId,
+    });
+  }
+
+  public async unsetVercelAppProject(appId: number): Promise<void> {
+    await this.ipcRenderer.invoke("app:unset-vercel-project", { appId });
+  }
+  // --- End Vercel Management ---
 
   public async getSystemDebugInfo(): Promise<SystemDebugInfo> {
     return this.ipcRenderer.invoke("get-system-debug-info");

@@ -34,6 +34,7 @@ const providers = [
   "openrouter",
   "ollama",
   "lmstudio",
+  "vercel", // Add vercel here
 ] as const;
 
 export const cloudProviders = providers.filter(
@@ -87,6 +88,11 @@ export const SupabaseSchema = z.object({
 });
 export type Supabase = z.infer<typeof SupabaseSchema>;
 
+export const VercelSchema = z.object({
+  accessToken: SecretSchema.optional(),
+});
+export type Vercel = z.infer<typeof VercelSchema>;
+
 export const ExperimentsSchema = z.object({
   // Deprecated
   enableSupabaseIntegration: z.boolean().describe("DEPRECATED").optional(),
@@ -109,6 +115,7 @@ export const UserSettingsSchema = z.object({
   githubUser: GithubUserSchema.optional(),
   githubAccessToken: SecretSchema.optional(),
   supabase: SupabaseSchema.optional(),
+  vercel: VercelSchema.optional(), // Add Vercel settings here
   autoApproveChanges: z.boolean().optional(),
   telemetryConsent: z.enum(["opted_in", "opted_out", "unset"]).optional(),
   telemetryUserId: z.string().optional(),

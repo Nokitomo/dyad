@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   experiments: {},
   enableProLazyEditsMode: true,
   enableProSmartFilesContextMode: true,
+  vercel: {}, // Add default Vercel settings
 };
 
 const SETTINGS_FILE = "user-settings.json";
@@ -67,6 +68,13 @@ export function readSettings(): UserSettings {
         encryptionType,
       };
     }
+    if (combinedSettings.vercel?.accessToken) {
+      const encryptionType = combinedSettings.vercel.accessToken.encryptionType;
+      combinedSettings.vercel.accessToken = {
+        value: decrypt(combinedSettings.vercel.accessToken),
+        encryptionType,
+      };
+    }
     for (const provider in combinedSettings.providerSettings) {
       if (combinedSettings.providerSettings[provider].apiKey) {
         const encryptionType =
@@ -109,6 +117,11 @@ export function writeSettings(settings: Partial<UserSettings>): void {
           newSettings.supabase.refreshToken.value,
         );
       }
+    }
+    if (newSettings.vercel?.accessToken) {
+      newSettings.vercel.accessToken = encrypt(
+        newSettings.vercel.accessToken.value,
+      );
     }
     for (const provider in newSettings.providerSettings) {
       if (newSettings.providerSettings[provider].apiKey) {

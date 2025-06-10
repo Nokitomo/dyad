@@ -71,6 +71,12 @@ export interface App {
   githubRepo: string | null;
   supabaseProjectId: string | null;
   supabaseProjectName: string | null;
+  vercelProjectId: string | null;
+  vercelProjectName: string | null;
+  vercelDeploymentId: string | null;
+  vercelDeploymentUrl: string | null;
+  vercelInspectorUrl: string | null;
+  vercelDeploymentTimestamp: Date | null;
 }
 
 export interface Version {
@@ -223,3 +229,18 @@ export const UserBudgetInfoSchema = z.object({
   budgetResetDate: z.date(),
 });
 export type UserBudgetInfo = z.infer<typeof UserBudgetInfoSchema>;
+export interface VercelProject {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface VercelDeployParams {
+  appId: number;
+  projectId: string;
+}
+
+export interface VercelDeploymentResult {
+  deploymentUrl: string;
+  inspectorUrl: string;
+}

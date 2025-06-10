@@ -6,13 +6,14 @@ import { settingsRoute } from "./routes/settings";
 import { providerSettingsRoute } from "./routes/settings/providers/$provider";
 import { appDetailsRoute } from "./routes/app-details";
 import { hubRoute } from "./routes/hub";
+import { vercelSettingsRoute } from "./routes/settings/vercel"; // Import the new Vercel route
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
   hubRoute,
   chatRoute,
   appDetailsRoute,
-  settingsRoute.addChildren([providerSettingsRoute]),
+  settingsRoute.addChildren([providerSettingsRoute, vercelSettingsRoute]), // Add vercelSettingsRoute here
 ]);
 
 // src/components/NotFoundRedirect.tsx
